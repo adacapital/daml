@@ -8,7 +8,12 @@ With this toy daml model we try to recreate the same contract.
 * Each end user will be allowed to vote only once.
 * Upon voting the user will decide on an  Integer value between 1 and 100.
 * Once cast this value is accumulated to others.
-* At the end of the vote, the DAO's own voted value is added to the total and its modulo over the number of proposed name will serve as an index to the chosen name.
+* At the end of the vote, the DAO's own vote value is added to the total and its modulo over the number of proposed name serves as an index to the chosen name.
+
+
+![This is an image](/lobstervote.vote.jpg)
+
+![This is an image](/lobstervote.voteresult.jpg)
 
 
 
