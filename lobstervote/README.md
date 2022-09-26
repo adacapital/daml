@@ -11,9 +11,9 @@ With this toy daml model we try to recreate the same contract.
 * At the end of the vote, the DAO's own vote value is added to the total and its modulo over the number of proposed name serves as an index to the chosen name.
 
 
-![This is an image](/assets/images//lobstervote.vote.jpg)
+![This is an image](/lobstervote/lobstervote.vote.jpg)
 
-![This is an image](/assets/images//lobstervote.voteresult.jpg)
+![This is an image](/lobstervote/lobstervote.voteresult.jpg)
 
 
 
