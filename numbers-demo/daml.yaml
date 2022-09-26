@@ -1,0 +1,12 @@
+sdk-version: 2.3.4
+name: numbers-demo
+source: daml
+version: 0.0.1
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+sandbox-options:
+  - --wall-clock-time
+# Remove this line when running against a ledger without user management.
+init-script: Setup:setup

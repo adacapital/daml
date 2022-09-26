@@ -1,0 +1,108 @@
+module LobsterVote where
+
+import Daml.Script
+import DA.Set as S
+import DA.List as L
+
+data CandidateNames = CandidateNames
+  with
+    names : [Text]
+  deriving (Eq, Show)
+
+type VoteKey = (Party, CandidateNames)
+
+template Vote
+  with
+    dao : Party
+    names : CandidateNames
+    voters : Set Party
+    voted : Set Party
+    votes : [Int]
+    dao_vote : Int
+    required_vote_count : Int
+  where
+    signatory dao, voted
+    observer voters
+
+    key (dao, names) : VoteKey
+    maintainer key._1
+
+    choice Add : ()
+      with voter : Party
+      controller dao
+      do
+        create this with voters = S.insert voter voters
+        pure ()
+
+    choice Cast : ()
+      with
+        voter : Party
+        vote : Int
+      controller voter
+      do
+        assertMsg "Voter not added" $ member voter voters
+        assertMsg "Voter already voted" $ not $ member voter voted
+        assertMsg ("Maximum vote count exceeded (" <> show required_vote_count <> ")") $ length votes < required_vote_count
+        assertMsg "Vote value not in authorized range [1-100]" $ (vote > 0) && (vote <= 100)
+        create this with voted = S.insert voter voted; votes = votes ++ [vote]
+        pure ()
+
+    choice Finalize : ContractId VoteResult
+      controller dao
+      do
+        assertMsg ("To be complete this contract requires " <> show required_vote_count <> " votes!") $ length votes == required_vote_count
+        let candidatesCount = length names.names
+        let sumVotes = dao_vote + foldl (\y x -> y + x) 0 votes
+        let nameIndex = sumVotes % candidatesCount
+        let chosen_name = names.names !! nameIndex
+        debug "nameIndex: "
+        debug candidatesCount
+        debug dao_vote
+        debug sumVotes
+        debug nameIndex 
+        debug (names.names !! nameIndex)
+        create VoteResult with dao; chosen_name; voters; votes
+        
+template VoteResult
+  with
+    dao : Party
+    chosen_name : Text
+    voters : Set Party
+    votes : [Int]
+  where
+    signatory dao
+    observer voters
+
+testVote = script do
+  dao <- allocateParty "DAO"
+  user1 <- allocateParty "User1"
+  user2 <- allocateParty "User2"
+  user3 <- allocateParty "User3"
+  user4 <- allocateParty "User4"
+  user5 <- allocateParty "User5"
+
+  let candidateNames = CandidateNames with names = ["JAMES", "JOHN", "ROBERT", "MICHAEL", "WILLIAM", "DAVID", "RICHARD", "CHARLES", "JOSEPH", "THOMAS"]
+  let voteKey = (dao, candidateNames)
+  submit dao do createCmd Vote 
+                    with 
+                        dao = dao
+                        names = candidateNames
+                        voters = S.empty
+                        voted = S.empty
+                        votes = []
+                        dao_vote = 5
+                        required_vote_count = 3
+                        
+  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user1
+  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user2
+  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user3
+  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user4
+  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user5
+  submit user1 do exerciseByKeyCmd @Vote voteKey Cast with voter = user1; vote = 100
+  -- submit user1 do exerciseByKeyCmd @Vote voteKey Cast with voter = user1; vote = 3
+  -- result <- submit dao do exerciseByKeyCmd @Vote voteKey Finalize
+  submit user2 do exerciseByKeyCmd @Vote voteKey Cast with voter = user2; vote = 55
+  submit user3 do exerciseByKeyCmd @Vote voteKey Cast with voter = user3; vote = 44
+  -- submit user4 do exerciseByKeyCmd @Vote voteKey Cast with voter = user4; vote = 4
+  result <- submit dao do exerciseByKeyCmd @Vote voteKey Finalize
+  return ()

@@ -1,0 +1,12 @@
+sdk-version: 2.3.4
+name: organizer
+source: daml
+version: 0.0.1
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-trigger
+  - daml-script
+start-navigator: false  
+# Remove this line when running against a ledger without user management.
+init-script: Setup:setup

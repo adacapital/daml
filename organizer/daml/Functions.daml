@@ -1,0 +1,51 @@
+module Functions where
+
+import DA.Math
+
+answer: Int
+answer = 42
+
+double: Int -> Int
+double x = x + x
+
+square: Int -> Int
+square x = x * x
+
+diagonal: Decimal -> Decimal -> Decimal
+diagonal a b = (a^2 + b^2) ** 0.5
+
+calc : [Int]
+calc = (map ($ 5) [double, square])
+
+-- C/C++ equivalent for
+-- int[] xs = {0, 1, 2, 3, 5, 8, 13};
+-- int[] ys = {};
+-- for (int i = 0; i < xs.length(); i++) {
+--   ys[i] = xs[i] * 3;
+-- }
+-- is: 
+ys = map (\x -> x *3) [0, 1, 2, 3, 5, 8, 13] 
+
+-- List comprehension
+timesThree: [Int]
+timesThree = [x * 3 | x <- [0, 1, 2, 3, 5, 8, 13]]
+
+evenElements: [Int]
+evenElements = [x | x <- [0, 1, 2, 3, 5, 8, 13], x % 2 == 0]
+
+products: [Int]
+products = [x * y | x <- [1, 2, 3], y <- [1, 2, 3]] -- [1, 2, 3, 2, 4, 6, 3, 6, 9]
+
+-- C/C++ equivalent for
+-- int[] xs = {0, 1, 2, 3, 5, 8, 13};
+-- y = 0;
+-- for (int i = 0; i < xs.length(); i++) {
+--   y = y + x[i];
+-- }
+-- is: 
+
+total: Int
+total = foldl (\y x -> y + x) 0 [0, 1, 2, 3, 5, 8, 13]
+
+
+

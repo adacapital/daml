@@ -1,0 +1,82 @@
+module AddressBook where
+
+import Daml.Script
+import DA.Date
+import DA.Set
+import DA.Optional
+
+data Address = Address {
+  street: Text,
+  city: Text,
+  country: Text
+} deriving (Eq, Show, Ord)
+
+data Person = Person {
+  name: Text,
+  addresses: Set Address,
+  age: Int,
+  birthday: Date,
+  email: Optional Text
+}
+
+testPerson: Person
+testPerson = Person {name = "Alice", addresses = fromList [Address {street = "RabbitStreet", city = "QueenOfHearts", country = "Wonderland"}], age = 7, birthday = date 30 Oct 2013, email = Some "alice@wonderland.com"}
+
+prettyAddress: Address -> Text
+prettyAddress (Address aStreet aCity aCountry) = aStreet <> " - " <> aCity <> " - " <> aCountry
+
+prettyAddress1: Address -> Text
+prettyAddress1 addr = addr.street <> " - " <> addr.city <> " - " <> addr.country
+
+template PersonContract
+  with
+    name: Party
+    address: Address
+    age: Int
+  where
+    signatory name
+
+test = script do
+  alice <- allocateParty "Alice"
+  p <- submit alice $ createCmd $ PersonContract {name = alice, address = Address {street = "RabbitStreet", city = "QueenOfHearts", country = "Wonderland"}, age = 7}
+  Some c <- queryContractId alice p
+  assert $ c.name == alice
+
+
+data Gender
+  = M
+  | F
+  | Other Text
+
+prettyGender: Gender -> Text
+prettyGender gender = case gender of
+  M -> "male"
+  F -> "female"
+  Other o -> o
+
+data PhoneNumber = PhoneNumber {
+  countryCode: Int,
+  digitsGroup1: Int,
+  digitsGroup2: Int,
+  digitsGroup3: Int
+}
+
+prettyPhoneNumber: PhoneNumber -> Text
+prettyPhoneNumber pn =
+  "+"
+  <> (show pn.countryCode)
+  <> " " <> (show pn.digitsGroup1)
+  <> " " <> (show pn.digitsGroup2)
+  <> " " <> (show pn.digitsGroup3)
+
+-- test2 = script do
+--   alice <- allocateParty "Alice"
+--   bob <- allocateParty "Bob"
+--   charlie <- allocateParty "Charlie"
+--   submit alice $ createCmd User with username = alice, following = []
+
+
+
+
+
+

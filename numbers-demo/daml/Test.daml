@@ -1,0 +1,14 @@
+module Test where
+
+import DA.Math
+
+answer: Int
+answer = 42
+
+square: Int -> Int
+square x = x * x
+
+
+
+
+

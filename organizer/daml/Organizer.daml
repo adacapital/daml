@@ -1,0 +1,8 @@
+module Organizer where
+
+import AddressBook
+
+data Organizer = Organizer {
+  owner: Person
+}
+

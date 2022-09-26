@@ -1,0 +1,22 @@
+[
+    {
+        "name": "JAMES",
+        "gender": "M",
+        "culture": "EN"
+    },
+    {
+        "name": "JOHN",
+        "gender": "M",
+        "culture": "EN"
+    },
+    {
+        "name": "ROBERT",
+        "gender": "M",
+        "culture": "EN"
+    },
+    {
+        "name": "MICHAEL",
+        "gender": "M",
+        "culture": "EN"
+    }
+]

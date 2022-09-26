@@ -1,0 +1,9 @@
+sdk-version: 2.3.4
+name: lobstervote
+source: daml
+version: 0.0.1
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+
