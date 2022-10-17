@@ -27,14 +27,14 @@ template Vote
     key (dao, names) : VoteKey
     maintainer key._1
 
-    choice Add : ()
+    choice AddVoter : ()
       with voter : Party
       controller dao
       do
         create this with voters = S.insert voter voters
         pure ()
 
-    choice Cast : ()
+    choice CastVote : ()
       with
         voter : Party
         vote : Int
@@ -47,7 +47,7 @@ template Vote
         create this with voted = S.insert voter voted; votes = votes ++ [vote]
         pure ()
 
-    choice Finalize : ContractId VoteResult
+    choice FinalizeVote : ContractId VoteResult
       controller dao
       do
         assertMsg ("To be complete this contract requires " <> show required_vote_count <> " votes!") $ length votes == required_vote_count
@@ -83,6 +83,7 @@ testVote = script do
 
   let candidateNames = CandidateNames with names = ["JAMES", "JOHN", "ROBERT", "MICHAEL", "WILLIAM", "DAVID", "RICHARD", "CHARLES", "JOSEPH", "THOMAS"]
   let voteKey = (dao, candidateNames)
+
   submit dao do createCmd Vote 
                     with 
                         dao = dao
@@ -93,16 +94,22 @@ testVote = script do
                         dao_vote = 5
                         required_vote_count = 3
                         
-  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user1
-  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user2
-  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user3
-  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user4
-  submit dao do exerciseByKeyCmd @Vote voteKey Add with voter = user5
-  submit user1 do exerciseByKeyCmd @Vote voteKey Cast with voter = user1; vote = 100
-  -- submit user1 do exerciseByKeyCmd @Vote voteKey Cast with voter = user1; vote = 3
-  -- result <- submit dao do exerciseByKeyCmd @Vote voteKey Finalize
-  submit user2 do exerciseByKeyCmd @Vote voteKey Cast with voter = user2; vote = 55
-  submit user3 do exerciseByKeyCmd @Vote voteKey Cast with voter = user3; vote = 44
-  -- submit user4 do exerciseByKeyCmd @Vote voteKey Cast with voter = user4; vote = 4
-  result <- submit dao do exerciseByKeyCmd @Vote voteKey Finalize
+  -- submit dao do exerciseByKeyCmd @Vote voteKey AddVoter with voter = user1
+  -- submit dao do exerciseByKeyCmd @Vote voteKey AddVoter with voter = user2
+  -- submit dao do exerciseByKeyCmd @Vote voteKey AddVoter with voter = user3
+  -- submit dao do exerciseByKeyCmd @Vote voteKey AddVoter with voter = user4
+  -- submit dao do exerciseByKeyCmd @Vote voteKey AddVoter with voter = user5
+
+  -- submit user1 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user1; vote = 100
+  -- submit user1 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user1; vote = 3
+  
+  -- submit user2 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user2; vote = 250
+  -- submit user2 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user2; vote = 55
+
+  -- result <- submit dao do exerciseByKeyCmd @Vote voteKey FinalizeVote
+  
+  -- submit user3 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user3; vote = 44
+  -- submit user4 do exerciseByKeyCmd @Vote voteKey CastVote with voter = user4; vote = 4
+
+  -- result <- submit dao do exerciseByKeyCmd @Vote voteKey FinalizeVote
   return ()
